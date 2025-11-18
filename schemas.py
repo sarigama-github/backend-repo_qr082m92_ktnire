@@ -12,7 +12,8 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal, List
+from datetime import date
 
 # Example schemas (replace with your own):
 
@@ -40,6 +41,28 @@ class Product(BaseModel):
 
 # Add your own schemas here:
 # --------------------------------------------------
+
+class Subscription(BaseModel):
+    """
+    Personal subscription record
+    Collection name: "subscription"
+    """
+    user_id: Optional[str] = Field(None, description="User identifier (MVP: optional)")
+    name: str = Field(..., description="Service name, e.g., Netflix")
+    amount: float = Field(..., ge=0, description="Billing amount in currency units")
+    currency: str = Field("USD", min_length=3, max_length=3, description="ISO currency code")
+    billing_cycle: Literal["monthly", "annual", "weekly"] = Field(
+        "monthly", description="How often the subscription bills"
+    )
+    next_charge_date: Optional[date] = Field(
+        None, description="Next expected charge date"
+    )
+    payment_method: Optional[str] = Field(
+        None, description="Card or account label (read-only integrations later)"
+    )
+    tags: Optional[List[str]] = Field(default=None, description="User tags or categories")
+    notes: Optional[str] = Field(default=None, description="Free-form notes")
+    active: bool = Field(True, description="Whether the subscription is active")
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
